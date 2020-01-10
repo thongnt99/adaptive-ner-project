@@ -157,11 +157,11 @@ if __name__ == "__main__":
     eval_loss = eval_loss/nb_eval_steps
     print("Validation loss: {}".format(eval_loss))
     print("Validation Accuracy: {}".format(eval_accuracy/nb_eval_steps))
-    pred_tags = [id2label[p_i] for p in predictions for p_i in p]
-    valid_tags = [id2label[l_ii] for l in true_labels for l_i in l for l_ii in l_i]
-    print("F1-Score: {}".format(f1_score(pred_tags, valid_tags)))
+    pred_tags = [ [ id2label[p_i] for p_i in p] for p in predictions ]
+    valid_tags = [ [id2label[l_ii] for l_ii in l_i] for l in true_labels for l_i in l]
+    print("F1-Score: {}".format(f1_score(np.array(pred_tags).reshape(-1), np.array(valid_tags).reshape(-1))))
     with open("logs.txt", "w") as f:
       for tokens, pred, valid in zip(tokenized_train_text, pred_tags, valid_tags):
-        print(" ".join(tokens)+"\n")
-        print(" ".join(pred)+"\n")
-        print(" ".join(valid)+"\n\n")
+        f.write(" ".join(tokens)+"\n")
+        f.write(" ".join(pred)+"\n")
+        f.write(" ".join(valid)+"\n\n")
