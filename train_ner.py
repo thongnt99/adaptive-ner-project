@@ -160,3 +160,7 @@ if __name__ == "__main__":
     pred_tags = [id2label[p_i] for p in predictions for p_i in p]
     valid_tags = [id2label[l_ii] for l in true_labels for l_i in l for l_ii in l_i]
     print("F1-Score: {}".format(f1_score(pred_tags, valid_tags)))
+    with open("logs.txt", "w") as f:
+      for pred, valid in zip(pred_tags, valid_tags):
+        print(" ".join(pred)+"\n")
+        print(" ".join(valid)+"\n\n")
