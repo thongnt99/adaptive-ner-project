@@ -33,6 +33,8 @@ def flat_accuracy(preds, labels):
     labels_flat = labels.flatten()
     return np.sum(pred_flat == labels_flat) / len(labels_flat)
 if __name__ == "__main__":
+  device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+  n_gpu = torch.cuda.device_count()
   MAX_LEN = 75
   bs = 32
   train_text_path = "data/train/sentences.txt"
@@ -105,7 +107,7 @@ if __name__ == "__main__":
     nb_tr_examples, nb_tr_steps = 0, 0
     for step, batch in enumerate(train_dataloader):
         # add batch to gpu
-        # batch = tuple(t.to(device) for t in batch)
+        batch = tuple(t.to(device) for t in batch)
         b_input_ids, b_input_mask, b_labels = batch
         # forward pass
         loss = model(b_input_ids, token_type_ids=None,
