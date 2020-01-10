@@ -83,7 +83,7 @@ if __name__ == "__main__":
   test_data = TensorDataset(test_x_tensor, test_mask_tensor, test_y_tensor)
   test_sampler = SequentialSampler(test_data)
   test_dataloader = DataLoader(test_data, sampler=test_sampler, batch_size=bs)
-  model = BertForTokenClassification.from_pretrained("bert-base-uncased", num_labels=len(label2id))
+  model = BertForTokenClassification.from_pretrained("bert-base-uncased", num_labels=len(label2id)).to(device)
   FULL_FINETUNING = False 
   if FULL_FINETUNING:
       param_optimizer = list(model.named_parameters())
