@@ -69,12 +69,13 @@ if __name__ == "__main__":
                       dtype="long", truncating="post")
   train_attention_masks = [[float(i>0) for i in ii] for ii in train_input_ids]
   test_attention_masks = [[float(i>0) for i in ii] for ii in test_input_ids]
-  train_x_tensor = torch.tensor(train_input_ids)
-  train_y_tensor = torch.tensor(train_output_ids)
-  train_mask_tensor = torch.tensor(train_attention_masks)
-  test_x_tensor = torch.tensor(test_input_ids)
-  test_y_tensor = torch.tensor(test_output_ids)
-  test_mask_tensor = torch.tensor(test_attention_masks)
+  train_x_tensor = torch.tensor(train_input_ids).to(device)
+  train_y_tensor = torch.tensor(train_output_ids).to(device)
+  train_mask_tensor = torch.tensor(train_attention_masks).to(device)
+  test_x_tensor = torch.tensor(test_input_ids).to(device)
+  test_y_tensor = torch.tensor(test_output_ids).to(device)
+  test_mask_tensor = torch.tensor(test_attention_masks).to(device)
+
   train_data = TensorDataset(train_x_tensor, train_mask_tensor, train_y_tensor)
   train_sampler = RandomSampler(train_data)
   train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=bs)
