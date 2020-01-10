@@ -51,9 +51,11 @@ if __name__ == "__main__":
   val_sents = read_data(val_text_path)
   val_tags = read_data(val_label_path)
   label2id = {}
+  id2label = {}
   with open("tags.txt", "r") as f:
       for idx, label in enumerate(f.readlines()):
           label2id[label.strip()] = idx 
+          id2label[idx] = label 
   tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case = True)
   tokenized_train_text, tokenized_train_tags = tokenize_data(train_sents, train_tags, tokenizer)
   tokenized_test_text, tokenized_test_tags = tokenize_data(test_sents, test_tags, tokenizer)
@@ -155,6 +157,6 @@ if __name__ == "__main__":
     eval_loss = eval_loss/nb_eval_steps
     print("Validation loss: {}".format(eval_loss))
     print("Validation Accuracy: {}".format(eval_accuracy/nb_eval_steps))
-    pred_tags = [tags_vals[p_i] for p in predictions for p_i in p]
-    valid_tags = [tags_vals[l_ii] for l in true_labels for l_i in l for l_ii in l_i]
+    pred_tags = [id2label[p_i] for p in predictions for p_i in p]
+    valid_tags = [id2label[l_ii] for l in true_labels for l_i in l for l_ii in l_i]
     print("F1-Score: {}".format(f1_score(pred_tags, valid_tags)))
