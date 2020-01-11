@@ -38,7 +38,7 @@ if __name__ == "__main__":
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
   n_gpu = torch.cuda.device_count()
   MAX_LEN = 75
-  bs = 8
+  bs = 32
   train_text_path = "data/train/sentences.txt"
   train_label_path = "data/train/labels.txt"
   test_text_path = "small_data/test/sentences.txt"
@@ -101,8 +101,8 @@ if __name__ == "__main__":
   else:
       param_optimizer = list(model.classifier.named_parameters()) 
       optimizer_grouped_parameters = [{"params": [p for n, p in param_optimizer]}]
-  optimizer = Adam(optimizer_grouped_parameters, lr=3e-5)
-  epochs = 5
+  optimizer = Adam(optimizer_grouped_parameters, lr=0.05)
+  epochs = 50
   max_grad_norm = 1.0
 
   for epoch in trange(epochs, desc="Epoch"):
