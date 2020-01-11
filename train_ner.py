@@ -105,7 +105,7 @@ if __name__ == "__main__":
   epochs = 5
   max_grad_norm = 1.0
 
-  for _ in trange(epochs, desc="Epoch"):
+  for epoch in trange(epochs, desc="Epoch"):
     # TRAIN loop
     model.train()
     tr_loss = 0
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     print("F1-Score: {}".format(f1_score(pred_tags, valid_tags)))
     print(classification_report(pred_tags, valid_tags))
     # print(len(valid_tags))
-    with open("logs.txt", "w") as f:
+    with open("logs_epoch_{}.txt".format(epoch), "w") as f:
       for tokens, pred, valid in zip(tokenized_train_text, pred_tags, valid_tags):
         f.write(" ".join(tokens)+"\n")
         f.write(" ".join(pred)+"\n")
