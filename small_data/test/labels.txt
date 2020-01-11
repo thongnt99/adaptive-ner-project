@@ -1,0 +1,32 @@
+B-geo O O O O O O O O O O O O O O O O O O O O O O
+O O O O O O O O O O O O B-geo O O O O O B-tim O O O O O O O O O O O O O O O O O O O O O O O O
+O O O O O O O O O O O O O O O O B-tim O O O O O O O O O O O O O O O O O O
+O B-per I-per I-per I-per O O O O O O O O O O O O O O O O B-tim I-tim I-tim O O O O O O O O O O O O O
+O O O B-per I-per O O O O O O O O O O O O O B-org O O O B-tim O
+O O O O B-tim O O O O O O O O O O B-tim O O O O O B-gpe O O O O O
+O O O O O O O O O O O O O B-tim I-tim O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O
+O O O O O O O O O O B-per I-per I-per O O O O O O O O O O O O O O O O O O O O O B-tim O O O O O O
+B-per I-per I-per I-per O O O O B-per O O B-tim O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O
+O O O O O O O B-tim I-tim O O O O O O O O O O O O O O O O O O O
+O B-gpe O O O O O O O O O O O O O O O O O O O O O O O O O O O B-geo O O O O O O O
+O O O O O O O O O O O O O O O O O O O O O O O O O O O O B-org O O O O O O
+O B-tim O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O B-org O O
+O O O O O O O O O O O O O B-tim O O O O O O O O O O O O O O O O O O O O O O
+B-eve I-eve O O O O B-tim I-tim O O O O O O O O O
+O B-tim O O O O O O O O O O O O O O O O O B-tim O
+B-geo O O O O O O O O O O O O
+O O O O O O O O O O O O O B-art O O O O O O O O O O
+B-org O O O O O O O O O O O O O O O O O O O O O O O O O O O O
+B-org O O O O O O O O O O O O O O O O O O O O O O O O
+O B-org O O O O O O O O O O O O O
+O O O O O O O O O O O O O O O O O O O O O O B-geo O O O O O O O
+O O O O O O O O O O O O O O O O O O O O
+O O O O O O O O O O O
+O O O O O O O O O O O O O
+B-org O O O O O O O O B-tim I-tim I-tim O
+O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O
+O O O O O B-gpe O O O O O O O O O O O O
+B-org O O O O O O O O O O O O O O O O O O O O O O O O O O O B-tim O O O O O O O O O O O
+B-org O O B-org I-org I-org O O O O B-org O O O O O O O O O O O O O O B-tim O
+O O O O O O O O O O O O O O O O O O O O O O O
+O O O O O O O O O O O O O

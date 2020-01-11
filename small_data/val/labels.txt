@@ -1,0 +1,32 @@
+B-geo O O O O O O O O O O O O O O O O B-org O
+B-geo O O O O O O B-geo I-geo O O O O B-tim O O O O O O B-art O
+B-org O O O O O O O O O
+B-gpe O O O B-tim O O O O B-geo O O O O O O B-nat B-tim O
+O O B-gpe O O O O O O O O O O O O O O B-tim O
+O B-gpe O O O O O O O O O O O O O O O O O O O O O O O B-geo O
+O O O O O O O O O O O B-tim O O O O O O O O B-geo O O O O
+O O O O O O O O O O O O O O
+B-org O O O O O O O O O O B-geo O B-geo O B-geo I-geo O O O O B-geo O B-geo O O O O
+O O O O O O O O B-tim I-tim O
+O O B-geo O O O O O O O O O O O O O O O O O O B-org I-org O
+O O O O O O O O O O O O O O O O O
+O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O
+B-org I-org B-per I-per I-per O O O O B-tim O O O O O O O O O O O O O O B-geo O
+O O O O O O O B-geo O O O O O O O
+O O O O O B-geo O O O O O O O O O B-gpe O O O O O O O O
+B-geo O O O O B-geo O O O O O O O O O O O O O O O O O O O B-tim I-tim O O
+B-geo O B-tim I-tim I-tim O B-geo O O O O O O O O O O O O O O O O O O B-geo O O O O O O
+O B-org I-org I-org O O O O O O O O B-geo O O O O O O O O O O O O O O O O O B-geo I-geo O B-geo O
+B-geo O O O O O O O O O O O O O O O O O B-tim O
+O B-geo I-geo O O B-org I-org O O O O O B-geo O O O O O O O O O O O O O O O O
+B-org O O O O O O O O O O O O O O O B-geo I-geo O B-geo I-geo I-geo O
+B-org O B-org I-org O O B-per I-per I-per I-per O O O O O O O O O O O O O O O O O O
+O O O O O O B-gpe O O O O B-art O
+B-org O O O O O O O O
+B-tim O O O O O B-org I-org O O O O O O O B-geo O
+B-org O B-per I-per I-per O B-tim O B-org O O O O O O O O O B-org O
+O B-geo I-geo O O O O O B-org O O O O O
+O B-org O O O O O O O O O O
+O O O O O O O O B-org O O O O O O O B-geo O O B-gpe O B-per I-per O
+O O O O O O B-tim O O O B-geo O O O B-org I-org I-org I-org I-org O O O O O O O O O O O O O B-org O O O O O O O
+O O O O O O O O O O
