@@ -41,10 +41,10 @@ if __name__ == "__main__":
   bs = 32
   train_text_path = "data/train/sentences.txt"
   train_label_path = "data/train/labels.txt"
-  test_text_path = "small_data/test/sentences.txt"
-  test_label_path = "small_data/test/labels.txt"
-  val_text_path = "small_data/val/sentences.txt"
-  val_label_path = "small_data/val/labels.txt"
+  test_text_path = "data/test/sentences.txt"
+  test_label_path = "data/test/labels.txt"
+  val_text_path = "data/val/sentences.txt"
+  val_label_path = "data/val/labels.txt"
   train_sents = read_data(train_text_path)
   train_tags = read_data(train_label_path)
   test_sents = read_data(test_text_path)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
       for idx, label in enumerate(f.readlines()):
           label2id[label.strip()] = idx 
           id2label[idx] = label.strip() 
-  tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case = True)
+  tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case = True)
   tokenized_train_text, tokenized_train_tags = tokenize_data(train_sents, train_tags, tokenizer)
   tokenized_test_text, tokenized_test_tags = tokenize_data(test_sents, test_tags, tokenizer)
   tokenized_val_text, tokenized_val_tags = tokenize_data(val_sents, val_tags, tokenizer)
@@ -87,7 +87,7 @@ if __name__ == "__main__":
   test_data = TensorDataset(test_x_tensor, test_mask_tensor, test_y_tensor)
   test_sampler = SequentialSampler(test_data)
   test_dataloader = DataLoader(test_data, sampler=test_sampler, batch_size=bs)
-  model = BertForTokenClassification.from_pretrained("bert-base-uncased", num_labels=len(label2id)).to(device)
+  model = BertForTokenClassification.from_pretrained("bert-base-cased", num_labels=len(label2id)).to(device)
   FULL_FINETUNING = False 
   if FULL_FINETUNING:
       param_optimizer = list(model.named_parameters())
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     model.eval()
     eval_loss, eval_accuracy = 0, 0
     nb_eval_steps, nb_eval_examples = 0, 0
-    predictions , true_labels = [], []
+    predictions , true_labels = [], [] 
     for batch in test_dataloader:
         batch = tuple(t.to(device) for t in batch)
         b_input_ids, b_input_mask, b_labels = batch
@@ -158,15 +158,13 @@ if __name__ == "__main__":
     eval_loss = eval_loss/nb_eval_steps
     print("Validation loss: {}".format(eval_loss))
     print("Validation Accuracy: {}".format(eval_accuracy/nb_eval_steps))
-    # print(np.array(predictions).shape)
-    # print(np.array(true_labels).shape)
     pred_tags = [ [ id2label[p_i] for p_i in p] for p in predictions ]
     valid_tags = [ [id2label[l_i] for l_i in l] for l in true_labels]
-    print("F1-Score: {}".format(f1_score(pred_tags, valid_tags)))
-    print(classification_report(pred_tags, valid_tags))
-    # print(len(valid_tags))
     with open("logs_epoch_{}.txt".format(epoch), "w") as f:
-      for tokens, pred, valid in zip(tokenized_train_text, pred_tags, valid_tags):
+      for tokens, pred, valid in zip(tokenized_test_text, pred_tags, valid_tags):
         f.write(" ".join(tokens)+"\n")
         f.write(" ".join(pred)+"\n")
         f.write(" ".join(valid)+"\n\n")
+    print("F1-Score: {}".format(f1_score(pred_tags, valid_tags)))
+    print(classification_report(pred_tags, valid_tags))
+    
