@@ -6,6 +6,7 @@ from pytorch_pretrained_bert import BertTokenizer, BertConfig
 from pytorch_pretrained_bert import BertForTokenClassification, BertAdam
 from keras.preprocessing.sequence import pad_sequences
 from seqeval.metrics import f1_score
+from seqeval.metrics import classification_report
 from tqdm import trange
 
 def read_data(file):
@@ -37,13 +38,13 @@ if __name__ == "__main__":
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
   n_gpu = torch.cuda.device_count()
   MAX_LEN = 75
-  bs = 32
+  bs = 8
   train_text_path = "data/train/sentences.txt"
   train_label_path = "data/train/labels.txt"
-  test_text_path = "data/test/sentences.txt"
-  test_label_path = "data/test/labels.txt"
-  val_text_path = "data/val/sentences.txt"
-  val_label_path = "data/val/labels.txt"
+  test_text_path = "small_data/test/sentences.txt"
+  test_label_path = "small_data/test/labels.txt"
+  val_text_path = "small_data/val/sentences.txt"
+  val_label_path = "small_data/val/labels.txt"
   train_sents = read_data(train_text_path)
   train_tags = read_data(train_label_path)
   test_sents = read_data(test_text_path)
@@ -55,7 +56,7 @@ if __name__ == "__main__":
   with open("tags.txt", "r") as f:
       for idx, label in enumerate(f.readlines()):
           label2id[label.strip()] = idx 
-          id2label[idx] = label 
+          id2label[idx] = label.strip() 
   tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case = True)
   tokenized_train_text, tokenized_train_tags = tokenize_data(train_sents, train_tags, tokenizer)
   tokenized_test_text, tokenized_test_tags = tokenize_data(test_sents, test_tags, tokenizer)
@@ -144,9 +145,9 @@ if __name__ == "__main__":
                             attention_mask=b_input_mask)
         logits = logits.detach().cpu().numpy()
         label_ids = b_labels.to('cpu').numpy()
+        # print(np.argmax(logits, axis=2).shape)
         predictions.extend([list(p) for p in np.argmax(logits, axis=2)])
-        true_labels.append(label_ids)
-        
+        true_labels.extend(label_ids)
         tmp_eval_accuracy = flat_accuracy(logits, label_ids)
         
         eval_loss += tmp_eval_loss.mean().item()
@@ -157,9 +158,13 @@ if __name__ == "__main__":
     eval_loss = eval_loss/nb_eval_steps
     print("Validation loss: {}".format(eval_loss))
     print("Validation Accuracy: {}".format(eval_accuracy/nb_eval_steps))
+    # print(np.array(predictions).shape)
+    # print(np.array(true_labels).shape)
     pred_tags = [ [ id2label[p_i] for p_i in p] for p in predictions ]
-    valid_tags = [ [id2label[l_ii] for l_ii in l_i] for l in true_labels for l_i in l]
-    # print("F1-Score: {}".format(f1_score(np.array(pred_tags).reshape(-1), np.array(valid_tags).reshape(-1))))
+    valid_tags = [ [id2label[l_i] for l_i in l] for l in true_labels]
+    print("F1-Score: {}".format(f1_score(pred_tags, valid_tags)))
+    print(classification_report(pred_tags, valid_tags))
+    # print(len(valid_tags))
     with open("logs.txt", "w") as f:
       for tokens, pred, valid in zip(tokenized_train_text, pred_tags, valid_tags):
         f.write(" ".join(tokens)+"\n")
