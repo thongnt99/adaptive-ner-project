@@ -59,7 +59,7 @@ if __name__ == "__main__":
           id2label[idx] = label.strip()
   label2id["PAD"] = -100
   id2label[-100] = "PAD"
-  tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case = True)
+  tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case = False)
   tokenized_train_text, tokenized_train_tags = tokenize_data(train_sents, train_tags, tokenizer)
   tokenized_test_text, tokenized_test_tags = tokenize_data(test_sents, test_tags, tokenizer)
   tokenized_val_text, tokenized_val_tags = tokenize_data(val_sents, val_tags, tokenizer)
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     print("Validation Accuracy: {}".format(eval_accuracy/nb_eval_steps))
     pred_tags = [ [ id2label[p_i] for p_i in p] for p in predictions ]
     valid_tags = [ [id2label[l_i] for l_i in l] for l in true_labels]
-    with open("logs_epoch_{}.txt".format(epoch), "w") as f:
+    with open("logs/logs_epoch_{}.txt".format(epoch), "w") as f:
       for tokens, pred, valid in zip(tokenized_test_text, pred_tags, valid_tags):
         f.write(" ".join(tokens)+"\n")
         f.write(" ".join(pred)+"\n")
