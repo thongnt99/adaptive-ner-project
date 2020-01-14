@@ -25,7 +25,7 @@ def tokenize_data(input_sentence_list, input_tags_list, tokenizer):
     for word, tag in zip(words, tags):
       tokens_of_word = tokenizer.tokenize(word)
       bert_tokens.extend(tokens_of_word)
-      bert_tags.extend([tag]*len(tokens_of_word))
+      bert_tags.extend([tag] + ["PAD"]*(len(tokens_of_word)-1))
     output_sentence_list.append(bert_tokens)
     output_tags_list.append(bert_tags)
   return output_sentence_list, output_tags_list
@@ -56,7 +56,9 @@ if __name__ == "__main__":
   with open("tags.txt", "r") as f:
       for idx, label in enumerate(f.readlines()):
           label2id[label.strip()] = idx 
-          id2label[idx] = label.strip() 
+          id2label[idx] = label.strip()
+  label2id["PAD"] = -100
+  id2label[-100] = "PAD"
   tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case = True)
   tokenized_train_text, tokenized_train_tags = tokenize_data(train_sents, train_tags, tokenizer)
   tokenized_test_text, tokenized_test_tags = tokenize_data(test_sents, test_tags, tokenizer)
