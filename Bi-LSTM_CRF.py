@@ -30,7 +30,7 @@ def log_sum_exp(vec, dim):
     return max_value + torch.log(torch.sum(torch.exp(vec - max_exp), dim))
 
 
-# In[137]:
+# In[164]:
 
 
 class BiLSTM_CRF(nn.Module):
@@ -51,11 +51,11 @@ class BiLSTM_CRF(nn.Module):
         self.hidden = self.init_hidden()
         
     def init_hidden(self):
-        return (torch.randn(2,self.batch_size, self.hidden_dim //2),torch.randn(2, self.batch_size, self.hidden_dim //2))
+        return (torch.randn(2,self.batch_size, self.hidden_dim //2).to(device),torch.randn(2, self.batch_size, self.hidden_dim //2).to(device))
     
     def _forward_alg(self, feats, lens):
         self.batch_size, _, _ = feats.size()
-        alphas = torch.full((self.batch_size, self.tagset_size), -10000.)
+        alphas = torch.full((self.batch_size, self.tagset_size), -10000.).to(device)
         alphas[:, self.tag_to_ix[START_TAG]] = 0 
         feats_t = feats.transpose(1,0)
         c_lens = lens.clone()
@@ -81,7 +81,7 @@ class BiLSTM_CRF(nn.Module):
     
     def _score_sentence(self, feats, tags, lens):
         self.batch_size,_,_ = feats.size()
-        score  = torch.zeros(self.batch_size,1)
+        score  = torch.zeros(self.batch_size,1).to(device)
         feats_t = feats.transpose(0,1)
         tags = torch.cat([torch.tensor([self.tag_to_ix[START_TAG]], dtype = torch.long).unsqueeze(0).expand(self.batch_size,1), tags],1)
         tags_t = tags.transpose(0,1)
@@ -96,7 +96,7 @@ class BiLSTM_CRF(nn.Module):
     def _viterbi_decode(self, feats, lens):
         self.batch_size,_,_ = feats.size()
         backpointers = [] 
-        pre_selection = torch.full((self.batch_size, self.tagset_size), -10000.)
+        pre_selection = torch.full((self.batch_size, self.tagset_size), -10000.).to(device)
         pre_selection[:,self.tag_to_ix[START_TAG]] = 0
         feats_t = feats.transpose(1,0)
         c_lens = lens.clone()
@@ -273,7 +273,7 @@ def id2lab(id_seq):
     return seq
 
 
-# In[159]:
+# In[161]:
 
 
 from torch.nn.utils.rnn import pad_sequence
