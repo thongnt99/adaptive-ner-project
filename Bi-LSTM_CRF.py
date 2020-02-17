@@ -273,7 +273,7 @@ def id2lab(id_seq):
     return seq
 
 
-# In[157]:
+# In[158]:
 
 
 from torch.nn.utils.rnn import pad_sequence
@@ -289,12 +289,9 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
     for i, batch in enumerate(train_dataloader):
         model.zero_grad()
         sents, labs, lens = batch
-        sents = pad_sequence(sents,batch_first= True)
-        labs = pad_sequence(labs,batch_first= True)
-        lens = torch.tensor(lens)
-        sents.to(device)
-        labs.to(device)
-        lens.to(device)
+        sents = pad_sequence(sents,batch_first= True).to(device)
+        labs = pad_sequence(labs,batch_first= True).to(device)
+        lens = torch.tensor(lens).to(device)
         loss = model.neg_log_likelihood(sents, labs, lens)
         loss.backward()
         optimizer.step()
@@ -305,12 +302,9 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
                     pred_labels = []
                     for batch in test_dataloader:
                         sents, labs, lens = batch
-                        sents = pad_sequence(sents,batch_first= True)
-                        labs = pad_sequence(labs,batch_first= True)
-                        lens = torch.tensor(lens)
-                        sents.to(device)
-                        labs.to(device)
-                        lens.to(device)
+                        sents = pad_sequence(sents,batch_first= True).to(device)
+                        labs = pad_sequence(labs,batch_first= True).to(device)
+                        lens = torch.tensor(lens).to(device)
                         score, preds = model(sents, lens)
         #                         print(sents.size()," ",labs.size(),"  ",preds.size())
                         for i, l in enumerate(lens):
