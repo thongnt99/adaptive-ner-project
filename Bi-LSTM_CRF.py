@@ -30,7 +30,7 @@ def log_sum_exp(vec, dim):
     return max_value + torch.log(torch.sum(torch.exp(vec - max_exp), dim))
 
 
-# In[164]:
+# In[165]:
 
 
 class BiLSTM_CRF(nn.Module):
@@ -83,7 +83,7 @@ class BiLSTM_CRF(nn.Module):
         self.batch_size,_,_ = feats.size()
         score  = torch.zeros(self.batch_size,1).to(device)
         feats_t = feats.transpose(0,1)
-        tags = torch.cat([torch.tensor([self.tag_to_ix[START_TAG]], dtype = torch.long).unsqueeze(0).expand(self.batch_size,1), tags],1)
+        tags = torch.cat([torch.tensor([self.tag_to_ix[START_TAG]], dtype = torch.long).to(device).unsqueeze(0).expand(self.batch_size,1), tags],1)
         tags_t = tags.transpose(0,1)
         c_lens = lens.clone()
         for i, feat in enumerate(feats_t):
