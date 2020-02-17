@@ -273,7 +273,7 @@ def id2lab(id_seq):
     return seq
 
 
-# In[156]:
+# In[157]:
 
 
 from torch.nn.utils.rnn import pad_sequence
@@ -295,7 +295,7 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
         sents.to(device)
         labs.to(device)
         lens.to(device)
-        loss = model.neg_log_likelihood(sents, labs, torch.tensor(lens))
+        loss = model.neg_log_likelihood(sents, labs, lens)
         loss.backward()
         optimizer.step()
         if (i%100 == 0):
