@@ -273,12 +273,15 @@ def id2lab(id_seq):
     return seq
 
 
-# In[150]:
+# In[156]:
 
 
-# from torch.nn.utils.rnn import pad_sequence
+from torch.nn.utils.rnn import pad_sequence
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(device)
 from seqeval.metrics import classification_report
 model = BiLSTM_CRF(len(word_to_ix), tag_to_ix, EMBEDDING_DIM, HIDDEN_DIM, BS)
+model.to(device)
 optimizer = optim.SGD(model.parameters(), lr=0.001, weight_decay=1e-4)
 
 # Make sure prepare_sequence from earlier in the LSTM section is loaded
@@ -288,6 +291,10 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
         sents, labs, lens = batch
         sents = pad_sequence(sents,batch_first= True)
         labs = pad_sequence(labs,batch_first= True)
+        lens = torch.tensor(lens)
+        sents.to(device)
+        labs.to(device)
+        lens.to(device)
         loss = model.neg_log_likelihood(sents, labs, torch.tensor(lens))
         loss.backward()
         optimizer.step()
@@ -301,6 +308,9 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
                         sents = pad_sequence(sents,batch_first= True)
                         labs = pad_sequence(labs,batch_first= True)
                         lens = torch.tensor(lens)
+                        sents.to(device)
+                        labs.to(device)
+                        lens.to(device)
                         score, preds = model(sents, lens)
         #                         print(sents.size()," ",labs.size(),"  ",preds.size())
                         for i, l in enumerate(lens):
@@ -309,3 +319,9 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
         #                             print(true_labels)
         #                             print(pred_labels)
                     print(classification_report(true_labels, pred_labels))
+
+# Check predictions after training
+with torch.no_grad():
+    precheck_sent = prepare_sequence(training_data[0][0], word_to_ix)
+    print(model(precheck_sent))
+
