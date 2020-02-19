@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[135]:
+# In[168]:
 
 
 import torch 
@@ -12,7 +12,7 @@ from torch.utils.data import Dataset, DataLoader, TensorDataset
 torch.manual_seed(1)
 
 
-# In[136]:
+# In[169]:
 
 
 def argmax(vec):
@@ -30,7 +30,7 @@ def log_sum_exp(vec, dim):
     return max_value + torch.log(torch.sum(torch.exp(vec - max_exp), dim))
 
 
-# In[165]:
+# In[170]:
 
 
 class BiLSTM_CRF(nn.Module):
@@ -148,7 +148,7 @@ class BiLSTM_CRF(nn.Module):
 
 # #### Training 
 
-# In[148]:
+# In[171]:
 
 
 START_TAG = "<START>"
@@ -160,7 +160,7 @@ epochs = 50
 BS = 64
 
 
-# In[139]:
+# In[172]:
 
 
 def read_data(data_path):
@@ -184,7 +184,24 @@ text_seqs_val, lab_seqs_val = read_data(val_folder)
 text_seqs_test, lab_seqs_test = read_data(test_folder)
 
 
-# In[140]:
+# In[173]:
+
+
+def load_fastext_embeeding(embeddings, vocab, path):
+    word_dim = embeddings.embedding_dim 
+    
+    with open(path, 'r') as f:
+        for i, line in enumerate(f):
+            tokens = line.split()
+            word = " ".join(tokens[:-word_dim])
+            if word not in vocab:
+                continue 
+            idx = vocab[word]
+            values = [float(v) for v in tokens[-word_dim:]]
+            embeddings.weight.data[idx] = (torch.FloatTensor(values))
+
+
+# In[174]:
 
 
 # building lexicon and tagset
@@ -210,7 +227,7 @@ tag_to_ix[STOP_TAG] = idx
 ix_to_tag[idx] = START_TAG
 
 
-# In[141]:
+# In[175]:
 
 
 def my_collate(batch):
@@ -220,7 +237,7 @@ def my_collate(batch):
     return [data, target, lens]
 
 
-# In[142]:
+# In[176]:
 
 
 class NERDataset(Dataset):
@@ -237,7 +254,7 @@ class NERDataset(Dataset):
         return self.texts[index], self.labels[index], self.lens[index]
 
 
-# In[143]:
+# In[177]:
 
 
 # Making data loader 
@@ -265,7 +282,7 @@ val_dataset = NERDataset(val_text_ids, test_label_ids, val_lens)
 val_dataloader = DataLoader(val_dataset, **params)
 
 
-# In[144]:
+# In[178]:
 
 
 def id2lab(id_seq):
@@ -273,7 +290,7 @@ def id2lab(id_seq):
     return seq
 
 
-# In[161]:
+# In[182]:
 
 
 from torch.nn.utils.rnn import pad_sequence
@@ -281,6 +298,10 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 from seqeval.metrics import classification_report
 model = BiLSTM_CRF(len(word_to_ix), tag_to_ix, EMBEDDING_DIM, HIDDEN_DIM, BS).to(device)
+embedding = model.word_embeds
+embedding.requires_grad = False
+print("loading embeedings")
+load_fastext_embeeding(embedding, word_to_ix, "wiki-news-300d-1M.vec")
 optimizer = optim.SGD(model.parameters(), lr=0.001, weight_decay=1e-4)
 
 # Make sure prepare_sequence from earlier in the LSTM section is loaded
