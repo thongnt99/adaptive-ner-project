@@ -290,11 +290,11 @@ def id2lab(id_seq):
     return seq
 
 
-# In[182]:
+# In[183]:
 
 
 from torch.nn.utils.rnn import pad_sequence
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print(device)
 from seqeval.metrics import classification_report
 model = BiLSTM_CRF(len(word_to_ix), tag_to_ix, EMBEDDING_DIM, HIDDEN_DIM, BS).to(device)
