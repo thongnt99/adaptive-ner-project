@@ -9,6 +9,8 @@ import torch.autograd as autograd
 import torch.nn as nn 
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader, TensorDataset
+from torch.nn.utils.rnn import pack_padded_sequence
+from torch.nn.utils.rnn import pad_packed_sequence
 torch.manual_seed(1)
 
 
@@ -71,11 +73,13 @@ class BiLSTM_CRF(nn.Module):
         alphas = alphas + self.transitions[self.tag_to_ix[STOP_TAG]].unsqueeze(0).expand_as(alphas)
         return alphas 
     
-    def _get_lstm_features(self, sentence):
+    def _get_lstm_features(self, sentence, lens):
         self.batch_size,_ = sentence.size()
         self.hidden = self.init_hidden()
         embeds = self.word_embeds(sentence)
+        embeds = pack_padded_sequence(embeds, lens.tolist(), batch_first= True)
         lstm_out, self.hidden = self.lstm(embeds, self.hidden)
+        lstm_out, _ = pad_packed_sequence(lstm_out, batch_first=True)
         lstm_feats = self.hidden2tag(lstm_out)
         return lstm_feats
     
@@ -91,6 +95,7 @@ class BiLSTM_CRF(nn.Module):
             score = score + lens_mask*self.transitions[tags_t[i+1], tags_t[i]].unsqueeze(-1) + torch.gather(feat,1,tags_t[i+1].unsqueeze(-1))
             lens_mask = (c_lens == 1).float().unsqueeze(-1)
             score = score + lens_mask*self.transitions[self.tag_to_ix[STOP_TAG], tags_t[i+1]].unsqueeze(-1)
+            c_lens = c_lens - 1
         return score 
     
     def _viterbi_decode(self, feats, lens):
@@ -124,7 +129,6 @@ class BiLSTM_CRF(nn.Module):
         paths = [idx.unsqueeze(1)]
         for argmax in reversed(backpointers):
             idx_exp = idx.unsqueeze(-1)
-
             idx = torch.gather(argmax, 1, idx_exp)
             idx = idx.squeeze(-1)
             paths.insert(0, idx.unsqueeze(1))
@@ -134,14 +138,14 @@ class BiLSTM_CRF(nn.Module):
     
     def neg_log_likelihood(self, sentences, sent2tags, lens):
         self.batch_size, _ = sentences.size()
-        feats = self._get_lstm_features(sentences)
+        feats = self._get_lstm_features(sentences,lens)
         forward_score = self._forward_alg(feats,lens)
         gold_score = self._score_sentence(feats, sent2tags, lens)
         return (forward_score - gold_score).mean()
     
     def forward(self, sentence, lens):
         self.batch_size,_ = sentence.size()
-        lstm_feats = self._get_lstm_features(sentence)
+        lstm_feats = self._get_lstm_features(sentence,lens)
         scores, paths = self._viterbi_decode(lstm_feats, lens)
         return scores, paths
 
@@ -155,7 +159,7 @@ START_TAG = "<START>"
 STOP_TAG = "<STOP>"
 UNK = "<UNK>"
 EMBEDDING_DIM = 300
-HIDDEN_DIM = 600
+HIDDEN_DIM = 400
 epochs = 50
 BS = 64
 
@@ -176,6 +180,7 @@ def read_data(data_path):
         if (len(text_seqs[i]) != len(lab_seqs[i])):
             print(data_path, " ", i," ", len(text_seqs[i]), " ", len(lab_seqs[i]))
     return text_seqs, lab_seqs
+
 train_folder = "data/train"
 val_folder = "data/val"
 test_folder = "data/test"
@@ -227,6 +232,7 @@ for seq in lab_seqs_train:
             idx = len(tag_to_ix)
             tag_to_ix[lab] = idx
             ix_to_tag[idx] = lab
+
 word_to_ix[UNK] = len(word_to_ix)
 idx = len(tag_to_ix)
 tag_to_ix[START_TAG] = idx 
@@ -304,7 +310,6 @@ def id2lab(id_seq):
 
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 from torch.nn.utils.rnn import pad_sequence
-print(device)
 from seqeval.metrics import classification_report
 from seqeval.metrics import accuracy_score
 from seqeval.metrics import f1_score
@@ -312,8 +317,8 @@ from seqeval.metrics import f1_score
 model = BiLSTM_CRF(len(word_to_ix), tag_to_ix, EMBEDDING_DIM, HIDDEN_DIM, BS).to(device)
 embedding = model.word_embeds
 # embedding.requires_grad = False
-print("loading embeedings")
-load_fastext_embeeding(embedding, word_to_ix, "wiki-news-300d-1M.vec")
+# print("loading embeedings")
+# load_fastext_embeeding(embedding, word_to_ix, "wiki-news-300d-1M.vec")
 optimizer = optim.SGD(model.parameters(), lr=0.001, weight_decay=1e-4)
 
 # Make sure prepare_sequence from earlier in the LSTM section is loaded
@@ -324,6 +329,9 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
         sents = pad_sequence(sents,batch_first= True).to(device)
         labs = pad_sequence(labs,batch_first= True).to(device)
         lens = torch.tensor(lens).to(device)
+        lens, idx  = torch.sort(lens, descending= True)
+        sents = sents[idx]
+        labs = labs[idx]
         loss = model.neg_log_likelihood(sents, labs, lens)
         loss.backward()
         optimizer.step()
@@ -343,6 +351,9 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
                         sents = pad_sequence(sents,batch_first= True).to(device)
                         labs = pad_sequence(labs,batch_first= True).to(device)
                         lens = torch.tensor(lens).to(device)
+                        lens, idx = torch.sort(lens, descending= True)
+                        sents = sents[idx]
+                        labs = labs[idx]
                         score, preds = model(sents, lens)
                         for i, l in enumerate(lens):
                             true_labels.append(id2lab(labs[i,:l]))
@@ -351,3 +362,6 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
                     print("F1 score: {:.4f}".format(f1_score(true_labels, pred_labels)))
                     print(classification_report(true_labels, pred_labels))
 
+
+
+# %%
