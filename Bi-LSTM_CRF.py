@@ -299,14 +299,7 @@ def id2lab(id_seq):
     return seq
 
 
-# In[200]:
-
-
-def evaluate():
-    
-
-
-# In[208]:
+# In[209]:
 
 
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
@@ -318,7 +311,7 @@ from seqeval.metrics import f1_score
 
 model = BiLSTM_CRF(len(word_to_ix), tag_to_ix, EMBEDDING_DIM, HIDDEN_DIM, BS).to(device)
 embedding = model.word_embeds
-embedding.requires_grad = False
+# embedding.requires_grad = False
 print("loading embeedings")
 load_fastext_embeeding(embedding, word_to_ix, "wiki-news-300d-1M.vec")
 optimizer = optim.SGD(model.parameters(), lr=0.001, weight_decay=1e-4)
