@@ -201,7 +201,7 @@ def load_fastext_embeeding(embeddings, vocab, path):
             embeddings.weight.data[idx] = (torch.FloatTensor(values))
 
 
-# In[174]:
+# In[186]:
 
 
 # building lexicon and tagset
@@ -209,6 +209,15 @@ word_to_ix = {}
 tag_to_ix = {}
 ix_to_tag = {}
 for seq in text_seqs_train:
+    for word in seq:
+        if not word in word_to_ix:
+            word_to_ix[word] = len(word_to_ix)
+for seq in text_seqs_test:
+    for word in seq:
+        if not word in word_to_ix:
+            word_to_ix[word] = len(word_to_ix)
+
+for seq in text_seqs_val:
     for word in seq:
         if not word in word_to_ix:
             word_to_ix[word] = len(word_to_ix)
@@ -227,7 +236,7 @@ tag_to_ix[STOP_TAG] = idx
 ix_to_tag[idx] = START_TAG
 
 
-# In[175]:
+# In[187]:
 
 
 def my_collate(batch):
@@ -237,7 +246,7 @@ def my_collate(batch):
     return [data, target, lens]
 
 
-# In[176]:
+# In[188]:
 
 
 class NERDataset(Dataset):
@@ -254,7 +263,7 @@ class NERDataset(Dataset):
         return self.texts[index], self.labels[index], self.lens[index]
 
 
-# In[177]:
+# In[189]:
 
 
 # Making data loader 
@@ -282,7 +291,7 @@ val_dataset = NERDataset(val_text_ids, test_label_ids, val_lens)
 val_dataloader = DataLoader(val_dataset, **params)
 
 
-# In[178]:
+# In[190]:
 
 
 def id2lab(id_seq):
@@ -290,13 +299,23 @@ def id2lab(id_seq):
     return seq
 
 
-# In[183]:
+# In[200]:
 
 
-from torch.nn.utils.rnn import pad_sequence
+def evaluate():
+    
+
+
+# In[208]:
+
+
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+from torch.nn.utils.rnn import pad_sequence
 print(device)
 from seqeval.metrics import classification_report
+from seqeval.metrics import accuracy_score
+from seqeval.metrics import f1_score
+
 model = BiLSTM_CRF(len(word_to_ix), tag_to_ix, EMBEDDING_DIM, HIDDEN_DIM, BS).to(device)
 embedding = model.word_embeds
 embedding.requires_grad = False
@@ -315,9 +334,15 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
         loss = model.neg_log_likelihood(sents, labs, lens)
         loss.backward()
         optimizer.step()
-        if (i%100 == 0):
-            print("Epoch {}, batch {}, loss {}".format(epoch, i, loss.item()))
+        score, preds = model(sents, lens)
+        true_labs = [id2lab(labs[i,:l]) for i,l in enumerate(lens)]
+        pred_labs = [id2lab(preds[i,:l]) for i,l in enumerate(lens)]
+        acc = accuracy_score(true_labs, pred_labs)
+        f1 = f1_score(true_labs, pred_labs)
+        print("Epoch {}, batch {}, train loss {:.4f}, train acc {:.4f}, train f1 {:.4f} ".format(epoch, i, loss.item(), acc, f1))
+        if ((i+1)%15 == 0):
             with torch.no_grad():
+                    print("Test evaluation")
                     true_labels = []
                     pred_labels = []
                     for batch in test_dataloader:
@@ -326,16 +351,10 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
                         labs = pad_sequence(labs,batch_first= True).to(device)
                         lens = torch.tensor(lens).to(device)
                         score, preds = model(sents, lens)
-        #                         print(sents.size()," ",labs.size(),"  ",preds.size())
                         for i, l in enumerate(lens):
                             true_labels.append(id2lab(labs[i,:l]))
                             pred_labels.append(id2lab(preds[i,:l]))
-        #                             print(true_labels)
-        #                             print(pred_labels)
+                    print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
+                    print("F1 score: {:.4f}".format(f1_score(true_labels, pred_labels)))
                     print(classification_report(true_labels, pred_labels))
-
-# Check predictions after training
-with torch.no_grad():
-    precheck_sent = prepare_sequence(training_data[0][0], word_to_ix)
-    print(model(precheck_sent))
 
