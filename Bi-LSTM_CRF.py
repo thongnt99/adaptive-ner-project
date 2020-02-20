@@ -44,7 +44,7 @@ class BiLSTM_CRF(nn.Module):
         self.tag_to_ix = tag_to_ix
         self.tagset_size = len(tag_to_ix)
         self.word_embeds = nn.Embedding(vocab_size, embedding_dim)
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim//2, num_layers = 1, bidirectional =True, batch_first=True)
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim//2, num_layers = 1, bidirectional =True, batch_first=True, dropout= 0.005)
         self.hidden2tag = nn.Linear(hidden_dim, self.tagset_size)
         self.transitions = nn.Parameter(torch.randn(self.tagset_size, self.tagset_size))
         self.transitions.data[tag_to_ix[START_TAG], :] = -10000
@@ -319,7 +319,7 @@ embedding = model.word_embeds
 # embedding.requires_grad = False
 # print("loading embeedings")
 # load_fastext_embeeding(embedding, word_to_ix, "wiki-news-300d-1M.vec")
-optimizer = optim.SGD(model.parameters(), lr=0.001, weight_decay=1e-4)
+optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
 
 # Make sure prepare_sequence from earlier in the LSTM section is loaded
 for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it is toy data
@@ -361,7 +361,5 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
                     print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
                     print("F1 score: {:.4f}".format(f1_score(true_labels, pred_labels)))
                     print(classification_report(true_labels, pred_labels))
-
-
 
 # %%
