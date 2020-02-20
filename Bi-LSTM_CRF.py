@@ -333,7 +333,7 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
         acc = accuracy_score(true_labs, pred_labs)
         f1 = f1_score(true_labs, pred_labs)
         print("Epoch {}, batch {}, train loss {:.4f}, train acc {:.4f}, train f1 {:.4f} ".format(epoch, i, loss.item(), acc, f1))
-        if ((i+1)%15 == 0):
+        if ((i+1)%50 == 0):
             with torch.no_grad():
                     print("Test evaluation")
                     true_labels = []
