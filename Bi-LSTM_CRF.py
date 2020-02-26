@@ -8,7 +8,6 @@ from torch.nn.utils.rnn import pad_packed_sequence
 torch.manual_seed(1)
 
 def argmax(vec):
-    # return the argmax as a python int 
     _, idx = torch.max(vec, 1)
     return idx.item()
 
@@ -140,7 +139,7 @@ STOP_TAG = "<STOP>"
 UNK = "<UNK>"
 EMBEDDING_DIM = 300
 HIDDEN_DIM = 400
-epochs = 50
+epochs = 20
 BS = 64
 
 def read_data(data_path):
@@ -167,7 +166,6 @@ text_seqs_test, lab_seqs_test = read_data(test_folder)
 
 def load_fastext_embeeding(embeddings, vocab, path):
     word_dim = embeddings.embedding_dim 
-    
     with open(path, 'r') as f:
         for i, line in enumerate(f):
             tokens = line.split()
@@ -181,15 +179,16 @@ def load_fastext_embeeding(embeddings, vocab, path):
 word_to_ix = {}
 tag_to_ix = {}
 ix_to_tag = {}
+
 for seq in text_seqs_train:
     for word in seq:
         if not word in word_to_ix:
             word_to_ix[word] = len(word_to_ix)
+
 for seq in text_seqs_test:
     for word in seq:
         if not word in word_to_ix:
             word_to_ix[word] = len(word_to_ix)
-
 for seq in text_seqs_val:
     for word in seq:
         if not word in word_to_ix:
@@ -306,3 +305,4 @@ for epoch in range(epochs):
                     print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
                     print("F1 score: {:.4f}".format(f1_score(true_labels, pred_labels)))
                     print(classification_report(true_labels, pred_labels))
+        torch.save(model.state_dict(), "models/model-26-02-20")
