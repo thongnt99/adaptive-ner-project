@@ -266,6 +266,7 @@ model = BiLSTM_CRF(len(word_to_ix), tag_to_ix, EMBEDDING_DIM, HIDDEN_DIM, BS).to
 embedding = model.word_embeds
 optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
 
+best_f1 = -1
 for epoch in range(epochs): 
     for i, batch in enumerate(train_dataloader):
         model.zero_grad()
@@ -290,7 +291,7 @@ for epoch in range(epochs):
                     print("Test evaluation")
                     true_labels = []
                     pred_labels = []
-                    for batch in test_dataloader:
+                    for batch in val_dataloader:
                         sents, labs, lens = batch
                         sents = pad_sequence(sents,batch_first= True).to(device)
                         labs = pad_sequence(labs,batch_first= True).to(device)
@@ -302,7 +303,11 @@ for epoch in range(epochs):
                         for i, l in enumerate(lens):
                             true_labels.append(id2lab(labs[i,:l]))
                             pred_labels.append(id2lab(preds[i,:l]))
+                    f1_score = f1_score(true_labels, pred_labels)
+                    if (f1_score > best_f1){
+                        torch.save(model.state_dict(), "models/model-26-02-20")
+                        best_f1 = f1_score
+                    }
                     print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
-                    print("F1 score: {:.4f}".format(f1_score(true_labels, pred_labels)))
+                    print("F1 score: {:.4f}".format(f1_score)
                     print(classification_report(true_labels, pred_labels))
-torch.save(model.state_dict(), "models/model-26-02-20")
