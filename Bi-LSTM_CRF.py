@@ -5,7 +5,21 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader, TensorDataset
 from torch.nn.utils.rnn import pack_padded_sequence
 from torch.nn.utils.rnn import pad_packed_sequence
+from torch.nn.utils.rnn import pad_sequence
+from seqeval.metrics import classification_report
+from seqeval.metrics import accuracy_score
+from seqeval.metrics import f1_score
+
 torch.manual_seed(1)
+
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+START_TAG = "<START>"
+STOP_TAG = "<STOP>"
+UNK = "<UNK>"
+EMBEDDING_DIM = 300
+HIDDEN_DIM = 400
+epochs = 20
+BS = 64
 
 def argmax(vec):
     _, idx = torch.max(vec, 1)
@@ -134,14 +148,6 @@ class BiLSTM_CRF(nn.Module):
         scores, paths = self._viterbi_decode(lstm_feats, lens)
         return scores, paths
 
-START_TAG = "<START>"
-STOP_TAG = "<STOP>"
-UNK = "<UNK>"
-EMBEDDING_DIM = 300
-HIDDEN_DIM = 400
-epochs = 20
-BS = 64
-
 def read_data(data_path):
     text_seqs = []
     lab_seqs = []
@@ -156,25 +162,14 @@ def read_data(data_path):
             print(data_path, " ", i," ", len(text_seqs[i]), " ", len(lab_seqs[i]))
     return text_seqs, lab_seqs
 
+
+
 train_folder = "data/train"
 val_folder = "data/val"
 test_folder = "data/test"
 text_seqs_train, lab_seqs_train = read_data(train_folder)
 text_seqs_val, lab_seqs_val = read_data(val_folder)
 text_seqs_test, lab_seqs_test = read_data(test_folder)
-
-
-def load_fastext_embeeding(embeddings, vocab, path):
-    word_dim = embeddings.embedding_dim 
-    with open(path, 'r') as f:
-        for i, line in enumerate(f):
-            tokens = line.split()
-            word = " ".join(tokens[:-word_dim])
-            if word not in vocab:
-                continue 
-            idx = vocab[word]
-            values = [float(v) for v in tokens[-word_dim:]]
-            embeddings.weight.data[idx] = (torch.FloatTensor(values))
 
 word_to_ix = {}
 tag_to_ix = {}
@@ -257,15 +252,22 @@ def id2lab(id_seq):
     seq = [ix_to_tag[id.item()] for id in id_seq]
     return seq
 
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
-from torch.nn.utils.rnn import pad_sequence
-from seqeval.metrics import classification_report
-from seqeval.metrics import accuracy_score
-from seqeval.metrics import f1_score
+def load_fastext_embeeding(embeddings, vocab, path):
+    word_dim = embeddings.embedding_dim 
+    with open(path, 'r') as f:
+        for i, line in enumerate(f):
+            tokens = line.split()
+            word = tokens[0]
+            if word not in vocab:
+                continue 
+            idx = vocab[word]
+            values = [float(v) for v in tokens[-word_dim:]]
+            embeddings.weight.data[idx] = (torch.FloatTensor(values))
 
-print(len(word_to_ix))
 model = BiLSTM_CRF(len(word_to_ix), tag_to_ix, EMBEDDING_DIM, HIDDEN_DIM, BS).to(device)
-embedding = model.word_embeds
+load_fastext_embeeding(model.word_embeds, word_to_ix, "wiki-news-300d-1M.vec")
+model.word_embeds.requires_grad = False 
+
 optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
 
 best_f1 = -1
@@ -307,7 +309,7 @@ for epoch in range(epochs):
                             pred_labels.append(id2lab(preds[i,:l]))
                     f1= f1_score(true_labels, pred_labels)
                     if (f1 > best_f1):
-                        torch.save(model.state_dict(), "models/model-26-02-20")
+                        torch.save(model.state_dict(), "models/model-26-02-20-fasttext")
                         best_f1 = f1
 
                     print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
