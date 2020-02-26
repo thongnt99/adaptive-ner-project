@@ -304,10 +304,10 @@ for epoch in range(epochs):
                             true_labels.append(id2lab(labs[i,:l]))
                             pred_labels.append(id2lab(preds[i,:l]))
                     f1_score = f1_score(true_labels, pred_labels)
-                    if (f1_score > best_f1){
+                    if (f1_score > best_f1):
                         torch.save(model.state_dict(), "models/model-26-02-20")
                         best_f1 = f1_score
-                    }
+                    
                     print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
                     print("F1 score: {:.4f}".format(f1_score)
                     print(classification_report(true_labels, pred_labels))
