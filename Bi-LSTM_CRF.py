@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[168]:
-
-
 import torch 
 import torch.autograd as autograd
 import torch.nn as nn 
@@ -12,10 +6,6 @@ from torch.utils.data import Dataset, DataLoader, TensorDataset
 from torch.nn.utils.rnn import pack_padded_sequence
 from torch.nn.utils.rnn import pad_packed_sequence
 torch.manual_seed(1)
-
-
-# In[169]:
-
 
 def argmax(vec):
     # return the argmax as a python int 
@@ -30,10 +20,6 @@ def log_sum_exp(vec, dim):
     max_value, idx = torch.max(vec, dim)
     max_exp = max_value.unsqueeze(-1).expand_as(vec)
     return max_value + torch.log(torch.sum(torch.exp(vec - max_exp), dim))
-
-
-# In[170]:
-
 
 class BiLSTM_CRF(nn.Module):
     def __init__(self, vocab_size, tag_to_ix, embedding_dim, hidden_dim, batch_size):
@@ -149,12 +135,6 @@ class BiLSTM_CRF(nn.Module):
         scores, paths = self._viterbi_decode(lstm_feats, lens)
         return scores, paths
 
-
-# #### Training 
-
-# In[171]:
-
-
 START_TAG = "<START>"
 STOP_TAG = "<STOP>"
 UNK = "<UNK>"
@@ -162,10 +142,6 @@ EMBEDDING_DIM = 300
 HIDDEN_DIM = 400
 epochs = 50
 BS = 64
-
-
-# In[172]:
-
 
 def read_data(data_path):
     text_seqs = []
@@ -189,9 +165,6 @@ text_seqs_val, lab_seqs_val = read_data(val_folder)
 text_seqs_test, lab_seqs_test = read_data(test_folder)
 
 
-# In[173]:
-
-
 def load_fastext_embeeding(embeddings, vocab, path):
     word_dim = embeddings.embedding_dim 
     
@@ -205,11 +178,6 @@ def load_fastext_embeeding(embeddings, vocab, path):
             values = [float(v) for v in tokens[-word_dim:]]
             embeddings.weight.data[idx] = (torch.FloatTensor(values))
 
-
-# In[186]:
-
-
-# building lexicon and tagset
 word_to_ix = {}
 tag_to_ix = {}
 ix_to_tag = {}
@@ -241,18 +209,11 @@ idx = len(tag_to_ix)
 tag_to_ix[STOP_TAG] = idx
 ix_to_tag[idx] = START_TAG
 
-
-# In[187]:
-
-
 def my_collate(batch):
     data = [item[0] for item in batch]
     target = [item[1] for item in batch]
     lens = [item[2] for item in batch]
     return [data, target, lens]
-
-
-# In[188]:
 
 
 class NERDataset(Dataset):
@@ -269,10 +230,6 @@ class NERDataset(Dataset):
         return self.texts[index], self.labels[index], self.lens[index]
 
 
-# In[189]:
-
-
-# Making data loader 
 params = {
    "batch_size": BS, 
     "shuffle": True,
@@ -296,17 +253,9 @@ val_lens = [len(text) for text in val_text_ids]
 val_dataset = NERDataset(val_text_ids, test_label_ids, val_lens)
 val_dataloader = DataLoader(val_dataset, **params)
 
-
-# In[190]:
-
-
 def id2lab(id_seq):
     seq = [ix_to_tag[id.item()] for id in id_seq]
     return seq
-
-
-# In[209]:
-
 
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 from torch.nn.utils.rnn import pad_sequence
@@ -316,13 +265,9 @@ from seqeval.metrics import f1_score
 
 model = BiLSTM_CRF(len(word_to_ix), tag_to_ix, EMBEDDING_DIM, HIDDEN_DIM, BS).to(device)
 embedding = model.word_embeds
-# embedding.requires_grad = False
-# print("loading embeedings")
-# load_fastext_embeeding(embedding, word_to_ix, "wiki-news-300d-1M.vec")
 optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
 
-# Make sure prepare_sequence from earlier in the LSTM section is loaded
-for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it is toy data
+for epoch in range(epochs): 
     for i, batch in enumerate(train_dataloader):
         model.zero_grad()
         sents, labs, lens = batch
@@ -361,5 +306,3 @@ for epoch in range(epochs):  # again, normally you would NOT do 300 epochs, it i
                     print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
                     print("F1 score: {:.4f}".format(f1_score(true_labels, pred_labels)))
                     print(classification_report(true_labels, pred_labels))
-
-# %%
