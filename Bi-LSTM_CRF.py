@@ -305,4 +305,4 @@ for epoch in range(epochs):
                     print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
                     print("F1 score: {:.4f}".format(f1_score(true_labels, pred_labels)))
                     print(classification_report(true_labels, pred_labels))
-        torch.save(model.state_dict(), "models/model-26-02-20")
+torch.save(model.state_dict(), "models/model-26-02-20")
