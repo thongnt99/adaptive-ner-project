@@ -234,6 +234,7 @@ params = {
     "shuffle": True,
     "collate_fn": my_collate
 }
+
 train_text_ids  = [prepare_sequence(seq, word_to_ix) for seq in text_seqs_train]
 train_label_ids = [prepare_sequence(seq, tag_to_ix) for seq in lab_seqs_train]
 train_lens = [len(text) for text in train_text_ids]
@@ -262,6 +263,7 @@ from seqeval.metrics import classification_report
 from seqeval.metrics import accuracy_score
 from seqeval.metrics import f1_score
 
+print(len(word_to_ix))
 model = BiLSTM_CRF(len(word_to_ix), tag_to_ix, EMBEDDING_DIM, HIDDEN_DIM, BS).to(device)
 embedding = model.word_embeds
 optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
@@ -303,11 +305,11 @@ for epoch in range(epochs):
                         for i, l in enumerate(lens):
                             true_labels.append(id2lab(labs[i,:l]))
                             pred_labels.append(id2lab(preds[i,:l]))
-                    f1_score = f1_score(true_labels, pred_labels)
-                    if (f1_score > best_f1):
+                    f1= f1_score(true_labels, pred_labels)
+                    if (f1 > best_f1):
                         torch.save(model.state_dict(), "models/model-26-02-20")
-                        best_f1 = f1_score
+                        best_f1 = f1
 
                     print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
-                    print("F1 score: {:.4f}".format(f1_score))
+                    print("F1 score: {:.4f}".format(f1))
                     print(classification_report(true_labels, pred_labels))
