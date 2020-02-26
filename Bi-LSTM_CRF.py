@@ -249,7 +249,7 @@ test_dataloader = DataLoader(test_dataset, **params)
 val_text_ids  = [prepare_sequence(seq, word_to_ix) for seq in text_seqs_val]
 val_label_ids = [prepare_sequence(seq, tag_to_ix) for seq in lab_seqs_val]
 val_lens = [len(text) for text in val_text_ids]
-val_dataset = NERDataset(val_text_ids, test_label_ids, val_lens)
+val_dataset = NERDataset(val_text_ids, val_label_ids, val_lens)
 val_dataloader = DataLoader(val_dataset, **params)
 
 def id2lab(id_seq):
