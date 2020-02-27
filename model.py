@@ -35,7 +35,7 @@ class BiLSTM_CRF(nn.Module):
         # self.hidden = self.init_hidden()
         
     def init_hidden(self):
-        return (torch.randn(2,self.batch_size, self.hidden_dim //2).to(device),torch.randn(2, self.batch_size, self.hidden_dim //2).to(device))
+        return (torch.zeros(2,self.batch_size, self.hidden_dim //2).to(device),torch.zeros(2, self.batch_size, self.hidden_dim //2).to(device))
     
     def _forward_alg(self, feats, lens):
         self.batch_size, _, _ = feats.size()

@@ -114,7 +114,7 @@ def my_collate(batch):
 
 params = {
    "batch_size": 32, 
-    "shuffle": True,
+    "shuffle": False,
     "collate_fn": my_collate
 }
 
