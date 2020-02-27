@@ -121,7 +121,7 @@ def my_collate(batch):
     return [data, target, lens]
 
 params = {
-   "batch_size": 32, 
+   "batch_size": 64, 
     "shuffle": False,
     "collate_fn": my_collate
 }
