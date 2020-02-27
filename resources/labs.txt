@@ -1,0 +1,17 @@
+O	887901
+B-geo	37644
+B-tim	20333
+B-org	20143
+I-per	17251
+B-per	16990
+I-org	16784
+B-gpe	15869
+I-geo	7414
+I-tim	6528
+B-art	402
+B-eve	308
+I-art	297
+I-eve	253
+B-nat	201
+I-gpe	198
+I-nat	51
