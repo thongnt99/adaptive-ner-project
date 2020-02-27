@@ -25,3 +25,22 @@ BERT NER - bert-large-cased
 01/15/2020 02:01:40 - INFO - __main__ -     loss = 0.09949652567609317
 01/15/2020 02:01:40 - INFO - __main__ -     precision = 0.8379455909943715
 01/15/2020 02:01:40 - INFO - __main__ -     recall = 0.8488952245188881
+
+
+# Bi-LSTM  CRF removing art 
+Evaluation on test set
+Accuracy: 0.9618
+F1 score: 0.7995
+           precision    recall  f1-score   support
+
+      geo       0.81      0.87      0.84      5567
+      org       0.68      0.61      0.64      3058
+      gpe       0.97      0.93      0.95      2492
+      tim       0.85      0.82      0.84      3105
+      per       0.75      0.65      0.70      2478
+      nat       0.41      0.21      0.28        33
+      eve       0.18      0.08      0.11        37
+
+micro avg       0.81      0.79      0.80     16770
+macro avg       0.81      0.79      0.80     16770
+
