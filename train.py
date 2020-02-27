@@ -22,6 +22,18 @@ def seqid2text(id_seq, ix_to_lab):
     seq = [ix_to_lab[id.item()] for id in id_seq]
     return seq
 
+def load_fastext_embeeding(embeddings, vocab, path):
+    word_dim = embeddings.embedding_dim 
+    with open(path, 'r') as f:
+        for i, line in enumerate(f):
+            tokens = line.split()
+            word = tokens[0]
+            if word not in vocab:
+                continue 
+            idx = vocab[word]
+            values = [float(v) for v in tokens[-word_dim:]]
+            embeddings.weight.data[idx] = (torch.FloatTensor(values))
+
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Train Bi-LSTM-CRF model for NER')
@@ -46,7 +58,8 @@ if __name__ == "__main__":
     val_data_loader = get_data_loader(val_folder, word_to_ix, lab_to_ix)
 
     model = BiLSTM_CRF(len(word_to_ix), lab_to_ix, EMBEDDING_DIM, HIDDEN_DIM).to(device)
-
+    load_fastext_embeeding(model.word_embeds, word_to_ix, "wiki-news-300d-1M.vec")
+    model.word_embeds.requires_grad = False 
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
     best_f1 = -1
     if args.do_train:
