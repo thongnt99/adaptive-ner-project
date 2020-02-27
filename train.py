@@ -16,7 +16,7 @@ device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 EMBEDDING_DIM = 300
 HIDDEN_DIM = 400
 epochs = 20
-BS = 64
+BS = 1
 
 def seqid2text(id_seq, ix_to_lab):
     seq = [ix_to_lab[id.item()] for id in id_seq]
