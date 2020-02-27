@@ -38,9 +38,13 @@ def read_data(data_path):
     valid_ix = []
     with open(data_path+"/labels.txt", "r") as f:
         for i,line in enumerate(f.readlines()):
-            if not("art" in line or "nat" in line or "eve" in line):
+            if ("art" in line or "nat" in line or "eve" in line):
                 valid_ix.append(i)
-            line = line.replace("B-art","O").replace("I-art","O")
+            line = line.replace("B-org","O").replace("I-org","O")
+            line = line.replace("B-geo","O").replace("I-geo","O")
+            line = line.replace("B-gpe","O").replace("I-gpe","O")
+            line = line.replace("B-per","O").replace("I-per","O")
+            line = line.replace("B-tim","O").replace("I-tim","O")
             lab_seqs.append(line.strip().split())
     text_seqs = [text_seqs[idx] for idx in valid_ix]
     lab_seqs = [lab_seqs[idx] for idx in valid_ix]
