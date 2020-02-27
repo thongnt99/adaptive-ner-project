@@ -38,6 +38,13 @@ def read_data(data_path):
     with open(data_path+"/labels.txt", "r") as f:
         for line in f.readlines():
             lab_seqs.append(line.strip().split())
+    for s1, s2 in zip(text_seqs, lab_seqs):
+        try:
+            assert len(s1) == len(s2)
+        except:
+            print(data_path)
+            print(s1)
+            print(s2)
     return text_seqs, lab_seqs
 
 def save_vocab(counter, path):

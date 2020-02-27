@@ -106,8 +106,6 @@ if __name__ == "__main__":
             word_sents = []
             for batch in test_data_loader:
                 sents, labs, lens = batch
-                for sent in sents:
-                    word_sents.append(seqid2text(sent, ix_to_word))
                 sents = pad_sequence(sents,batch_first= True).to(device)
                 labs = pad_sequence(labs,batch_first= True).to(device)
                 lens = torch.tensor(lens).to(device)
@@ -118,9 +116,12 @@ if __name__ == "__main__":
                 for i, l in enumerate(lens):
                     true_labels.append(seqid2text(labs[i,:l],ix_to_lab))
                     pred_labels.append(seqid2text(preds[i,:l],ix_to_lab))
+                    word_sents.append(seqid2text(sents[i,:l],ix_to_word))
             if args.do_predict:
-                with open("predictions.txt","w") as f:
+                with open("predictions.tsv","w") as f:
                     for word_seq, true_lab_seq, pred_lab_seq in zip(word_sents, true_labels, pred_labels):
+                        if true_lab_seq == pred_lab_seq:
+                            continue
                         for (word, true_lab, pred_lab) in zip(word_seq, true_lab_seq, pred_lab_seq):
                             f.write("{}\t{}\t{}\n".format(word, true_lab, pred_lab))
                         f.write("\n")
