@@ -37,7 +37,7 @@ def read_data(data_path):
             text_seqs.append(line.strip().split())
     valid_ix = []
     with open(data_path+"/labels.txt", "r") as f:
-        for i,line in enumerate(f.readlines()():
+        for i,line in enumerate(f.readlines()):
             if !("art" in line or "nat" in line or "eve" in line):
                 valid_ix.append(i)
             line = line.replace("B-art","O").replace("I-art","O")
