@@ -38,12 +38,15 @@ def read_data(data_path):
     valid_ix = []
     with open(data_path+"/labels.txt", "r") as f:
         for i,line in enumerate(f.readlines()):
-            if not("art" in line or "nat" in line or "eve" in line):
-                valid_ix.append(i)
-            line = line.replace("B-art","O").replace("I-art","O")
+            # if not("art" in line or "nat" in line or "eve" in line):
+            #     valid_ix.append(i)
+            line = line.replace("B-art","B-minor").replace("I-art","I-minor")
+            line = line.replace("B-nat","B-minor").replace("I-nat","I-minor")
+            line = line.replace("B-eve","B-minor").replace("I-eve","I-minor")
             lab_seqs.append(line.strip().split())
-    text_seqs = [text_seqs[idx] for idx in valid_ix]
-    lab_seqs = [lab_seqs[idx] for idx in valid_ix]
+
+    # text_seqs = [text_seqs[idx] for idx in valid_ix]
+    # lab_seqs = [lab_seqs[idx] for idx in valid_ix]
     for s1, s2 in zip(text_seqs, lab_seqs):
         try:
             assert len(s1) == len(s2)
