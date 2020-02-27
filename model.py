@@ -3,7 +3,9 @@ import torch
 import torch.nn as nn 
 from torch.nn.utils.rnn import pack_padded_sequence
 from torch.nn.utils.rnn import pad_packed_sequence
-
+from flair.embeddings import FlairEmbeddings, BertEmbeddings
+from flair.embeddings import StackedEmbeddings
+from flair.data import Sentence
 START_TAG = "<START>"
 STOP_TAG = "<STOP>"
 UNK = "<UNK>"
@@ -19,19 +21,28 @@ def log_sum_exp(vec, dim):
     return max_value + torch.log(torch.sum(torch.exp(vec - max_exp), dim))
 
 class BiLSTM_CRF(nn.Module):
-    def __init__(self, vocab_size, tag_to_ix, embedding_dim, hidden_dim):
+    def __init__(self, vocab_size, tag_to_ix, embedding_dim, hidden_dim, use_transformer = False, ix_to_word = None):
         super(BiLSTM_CRF, self).__init__()
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
         self.vocab_size = vocab_size
         self.tag_to_ix = tag_to_ix
         self.tagset_size = len(tag_to_ix)
-        self.word_embeds = nn.Embedding(vocab_size, embedding_dim)
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim//2, num_layers = 1, bidirectional =True, batch_first=True, dropout= 0.005)
+        self.use_transformer = use_transformer
+        if self.use_transformer:
+            self.flair_forward_embedding = FlairEmbeddings('multi-forward')
+            self.flair_backward_embedding = FlairEmbeddings('multi-backward')
+            self.bert_embedding = BertEmbeddings('bert-base-cased')
+            self.stacked_embeddings = StackedEmbeddings(embeddings=[self.flair_forward_embedding, self.flair_backward_embedding, self.bert_embedding])
+            self.lstm = nn.LSTM(embedding_dim, hidden_dim//2, num_layers = 1, bidirectional =True, batch_first=True, dropout= 0.005)
+        else: 
+            self.word_embeds = nn.Embedding(vocab_size, embedding_dim)
+            self.lstm = nn.LSTM(embedding_dim, hidden_dim//2, num_layers = 1, bidirectional =True, batch_first=True, dropout= 0.005)
         self.hidden2tag = nn.Linear(hidden_dim, self.tagset_size)
         self.transitions = nn.Parameter(torch.randn(self.tagset_size, self.tagset_size))
         self.transitions.data[tag_to_ix[START_TAG], :] = -10000
         self.transitions.data[:, tag_to_ix[STOP_TAG]] = -10000
+        self.ix_to_word = ix_to_word
         # self.hidden = self.init_hidden()
         
     def init_hidden(self):
@@ -54,11 +65,31 @@ class BiLSTM_CRF(nn.Module):
             c_lens = c_lens - 1
         alphas = alphas + self.transitions[self.tag_to_ix[STOP_TAG]].unsqueeze(0).expand_as(alphas)
         return alphas 
-    
+        
+    def get_flair_embedding(self, sentences, lens):
+        ## convert id back to words
+        text_sentences = []
+        for (sent,sl) in zip(sentences,lens):
+            no_paddings = sent[:sl]
+            word_list = [self.ix_to_word[ix.item()] for ix in no_paddings]
+            text_sentences.append(" ".join(word_list))
+        embeddings_tensor = torch.zeros(sentences.size(0), sentences.size(1),  self.embedding_dim)
+        for i,text_sent in enumerate(text_sentences):
+            flair_sent = Sentence(text_sent)
+            self.stacked_embeddings.embed(flair_sent)
+            print(text_sent)
+            for j, word in enumerate(flair_sent):
+                embeddings_tensor[i,j] = word.embedding
+        embeddings_tensor = embeddings_tensor.to(device)
+        return embeddings_tensor
+
     def _get_lstm_features(self, sentence, lens):
         self.batch_size,_ = sentence.size()
         self.hidden = self.init_hidden()
-        embeds = self.word_embeds(sentence)
+        if self.use_transformer:
+            embeds = self.get_flair_embedding(sentence, lens)
+        else:
+            embeds = self.word_embeds(sentence)
         embeds = pack_padded_sequence(embeds, lens.tolist(), batch_first= True)
         lstm_out, self.hidden = self.lstm(embeds, self.hidden)
         lstm_out, _ = pad_packed_sequence(lstm_out, batch_first=True)

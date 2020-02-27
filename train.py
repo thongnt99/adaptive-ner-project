@@ -13,7 +13,7 @@ from model import BiLSTM_CRF
 import argparse
 
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
-EMBEDDING_DIM = 300
+EMBEDDING_DIM = 7168
 HIDDEN_DIM = 400
 epochs = 20
 BS = 64
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     test_data_loader = get_data_loader(test_folder, word_to_ix, lab_to_ix)
     val_data_loader = get_data_loader(val_folder, word_to_ix, lab_to_ix)
 
-    model = BiLSTM_CRF(len(word_to_ix), lab_to_ix, EMBEDDING_DIM, HIDDEN_DIM).to(device)
+    model = BiLSTM_CRF(len(word_to_ix), lab_to_ix, EMBEDDING_DIM, HIDDEN_DIM, True, ix_to_word).to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
     best_f1 = -1
