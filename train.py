@@ -13,7 +13,7 @@ from model import BiLSTM_CRF
 import argparse
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-EMBEDDING_DIM = 7168
+EMBEDDING_DIM = 3072
 HIDDEN_DIM = 400
 epochs = 20
 BS = 64
@@ -69,33 +69,33 @@ if __name__ == "__main__":
                 acc = accuracy_score(true_labs, pred_labs)
                 f1 = f1_score(true_labs, pred_labs)
                 print("Epoch {}, batch {}, train loss {:.4f}, train acc {:.4f}, train f1 {:.4f} ".format(epoch, i, loss.item(), acc, f1))
-                if ((i+1)%50 == 0):
-                    with torch.no_grad():
-                        model.eval()
-                        print("Evaluation on validation set")
-                        true_labels = []
-                        pred_labels = []
-                        for batch in val_data_loader:
-                            sents, labs, lens = batch
-                            sents = pad_sequence(sents,batch_first= True).to(device)
-                            labs = pad_sequence(labs,batch_first= True).to(device)
-                            lens = torch.tensor(lens).to(device)
-                            lens, idx = torch.sort(lens, descending= True)
-                            sents = sents[idx]
-                            labs = labs[idx]
-                            score, preds = model(sents, lens)
-                            for i, l in enumerate(lens):
-                                true_labels.append(seqid2text(labs[i,:l],ix_to_lab))
-                                pred_labels.append(seqid2text(preds[i,:l],ix_to_lab))
-                        f1= f1_score(true_labels, pred_labels)
-                        if (f1 > best_f1):
-                            torch.save(model.state_dict(), "models/model-27-02-20-flair")
-                            best_f1 = f1
+                # if ((i+1)%50 == 0):
+            with torch.no_grad():
+                model.eval()
+                print("Evaluation on validation set")
+                true_labels = []
+                pred_labels = []
+                for batch in val_data_loader:
+                    sents, labs, lens = batch
+                    sents = pad_sequence(sents,batch_first= True).to(device)
+                    labs = pad_sequence(labs,batch_first= True).to(device)
+                    lens = torch.tensor(lens).to(device)
+                    lens, idx = torch.sort(lens, descending= True)
+                    sents = sents[idx]
+                    labs = labs[idx]
+                    score, preds = model(sents, lens)
+                    for i, l in enumerate(lens):
+                        true_labels.append(seqid2text(labs[i,:l],ix_to_lab))
+                        pred_labels.append(seqid2text(preds[i,:l],ix_to_lab))
+                f1= f1_score(true_labels, pred_labels)
+                if (f1 > best_f1):
+                    torch.save(model.state_dict(), "models/model-27-02-20-flair")
+                    best_f1 = f1
 
-                        print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
-                        print("F1 score: {:.4f}".format(f1))
-                        print(classification_report(true_labels, pred_labels))
-                        model.train(True)
+                print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
+                print("F1 score: {:.4f}".format(f1))
+                print(classification_report(true_labels, pred_labels))
+                model.train(True)
     if args.do_test:
         with torch.no_grad():
             print("Evaluation on test set")

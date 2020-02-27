@@ -76,7 +76,7 @@ class BiLSTM_CRF(nn.Module):
         embeddings_tensor = torch.zeros(sentences.size(0), sentences.size(1),  self.embedding_dim)
         for i,text_sent in enumerate(text_sentences):
             flair_sent = Sentence(text_sent)
-            self.stacked_embeddings.embed(flair_sent)
+            self.bert_embedding.embed(flair_sent)
             # print(text_sent)
             for j, word in enumerate(flair_sent):
                 embeddings_tensor[i,j] = word.embedding
