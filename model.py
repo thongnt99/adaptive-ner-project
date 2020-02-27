@@ -77,7 +77,7 @@ class BiLSTM_CRF(nn.Module):
         for i,text_sent in enumerate(text_sentences):
             flair_sent = Sentence(text_sent)
             self.stacked_embeddings.embed(flair_sent)
-            print(text_sent)
+            # print(text_sent)
             for j, word in enumerate(flair_sent):
                 embeddings_tensor[i,j] = word.embedding
         embeddings_tensor = embeddings_tensor.to(device)
