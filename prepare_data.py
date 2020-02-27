@@ -41,7 +41,7 @@ def read_data(data_path):
             line = line.replace("B-gpe","B-entity").replace("I-gpe","I-entity")
             line = line.replace("B-geo","B-entity").replace("I-geo","I-entity")
             line = line.replace("B-per","B-entity").replace("I-per","I-entity")
-            line = line.replace("B-time","B-entity").replace("I-time","I-entity")
+            line = line.replace("B-tim","B-entity").replace("I-tim","I-entity")
             line = line.replace("B-art","B-entity").replace("I-art","I-entity")
             line = line.replace("B-nat","B-entity").replace("I-nat","I-entity")
             line = line.replace("B-eve","B-entity").replace("I-eve","I-entity")
