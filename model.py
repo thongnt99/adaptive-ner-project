@@ -9,7 +9,7 @@ from flair.data import Sentence
 START_TAG = "<START>"
 STOP_TAG = "<STOP>"
 UNK = "<UNK>"
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def argmax(vec):
     _, idx = torch.max(vec, 1)

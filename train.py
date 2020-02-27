@@ -12,7 +12,7 @@ from seqeval.metrics import f1_score
 from model import BiLSTM_CRF
 import argparse
 
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 EMBEDDING_DIM = 7168
 HIDDEN_DIM = 400
 epochs = 20
