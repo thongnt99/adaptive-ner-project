@@ -89,7 +89,7 @@ if __name__ == "__main__":
                                 pred_labels.append(seqid2text(preds[i,:l],ix_to_lab))
                         f1= f1_score(true_labels, pred_labels)
                         if (f1 > best_f1):
-                            torch.save(model.state_dict(), "models/model-27-02-20")
+                            torch.save(model.state_dict(), "models/model-27-02-20-flair")
                             best_f1 = f1
 
                         print("Accuracy: {:.4f}".format(accuracy_score(true_labels, pred_labels)))
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     if args.do_test:
         with torch.no_grad():
             print("Evaluation on test set")
-            model.load_state_dict(torch.load("models/model-27-02-20", map_location = device))
+            model.load_state_dict(torch.load("models/model-27-02-20-flair", map_location = device))
             model.eval()
             true_labels = []
             pred_labels = []
