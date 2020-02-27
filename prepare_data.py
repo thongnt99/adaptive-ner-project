@@ -37,7 +37,15 @@ def read_data(data_path):
             text_seqs.append(line.strip().split())
     with open(data_path+"/labels.txt", "r") as f:
         for line in f.readlines():
-            # line = line.replace("B-art","O").replace("I-art","O")
+            line = line.replace("B-org","B-entity").replace("I-org","I-entity")
+            line = line.replace("B-gpe","B-entity").replace("I-gpe","I-entity")
+            line = line.replace("B-geo","B-entity").replace("I-geo","I-entity")
+            line = line.replace("B-per","B-entity").replace("I-per","I-entity")
+            line = line.replace("B-time","B-entity").replace("I-time","I-entity")
+            line = line.replace("B-art","B-entity").replace("I-art","I-entity")
+            line = line.replace("B-nat","B-entity").replace("I-nat","I-entity")
+            line = line.replace("B-eve","B-entity").replace("I-eve","I-entity")
+
             lab_seqs.append(line.strip().split())
     for s1, s2 in zip(text_seqs, lab_seqs):
         try:
