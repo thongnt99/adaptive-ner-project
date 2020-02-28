@@ -1,0 +1,7 @@
+O	1047055
+B-art	402
+B-eve	308
+I-art	297
+I-eve	253
+B-nat	201
+I-nat	51
