@@ -60,3 +60,14 @@ F1 score: 0.7969
 
 micro avg       0.81      0.79      0.80     16836
 macro avg       0.80      0.79      0.79     16836
+
+# Boundary detection 
+Evaluation on test set
+Accuracy: 0.9737
+F1 score: 0.8619
+           precision    recall  f1-score   support
+
+   entity       0.87      0.86      0.86     16836
+
+micro avg       0.87      0.86      0.86     16836
+macro avg       0.87      0.86      0.86     16836
