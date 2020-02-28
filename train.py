@@ -6,9 +6,9 @@ from prepare_data import build_vocab
 from prepare_data import load_word_vocab
 from prepare_data import load_lab_vocab
 from prepare_data import get_data_loader 
-from seqeval.metrics import classification_report
-from seqeval.metrics import accuracy_score
-from seqeval.metrics import f1_score
+from metrics import classification_report
+from metrics import accuracy_score
+from metrics import f1_score
 from model import BiLSTM_CRF
 import argparse
 
